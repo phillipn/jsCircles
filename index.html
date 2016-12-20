@@ -15,10 +15,11 @@
 	var svg = document.getElementById('svg')
 	svg.style.height = document.body.clientHeight;
 	svg.style.width = document.body.clientWidth;
+
 	function Circle(cx, cy, html_id)
 	{
 		var html_id = html_id;
-		this.info = { cx: cx,  cy: cy };
+		this.info = { cx: cx,  cy: cy};
 
 		//private function that generates a random number
 		var randomNumberBetween = function(min, max){
@@ -31,6 +32,8 @@
 				x: randomNumberBetween(-3,3),
 				y: randomNumberBetween(-3,3)
 			}
+
+			this.info.r = 10;
 
 			//create a circle
 			var circle = makeSVG('circle',
@@ -46,13 +49,13 @@
 
 		this.update = function(time){
 			var el = document.getElementById(html_id);
-
+			var circle_radius = this.info['r'];
 			//see if the circle is going outside the browser. if it is, reverse the velocity
-			if( this.info.cx >= document.body.clientWidth -10|| this.info.cx <= 10)
+			if( this.info.cx >= document.body.clientWidth - circle_radius|| this.info.cx < circle_radius)
 			{
 				this.info.velocity.x = this.info.velocity.x * -1;
 			}
-			if( this.info.cy >= document.body.clientHeight-10 || this.info.cy <= 10)
+			if( this.info.cy >= document.body.clientHeight - circle_radius|| this.info.cy < circle_radius)
 			{
 				this.info.velocity.y = this.info.velocity.y * -1;
 			}
@@ -98,6 +101,20 @@
 
 		//create one circle when the game starts
 		this.createNewCircle(document.body.clientWidth/2, document.body.clientHeight/2);
+
+		this.makeCirclesLarger = function(factor){
+			for(var i =0; i<circles.length; i++){
+				var circle = document.getElementsByTagName("circle")[i];
+				var newRadius = parseInt(circle.getAttribute("r")) + parseInt((circle.getAttribute("r") * factor));
+				circles[i].info.r = newRadius;
+			  circle.setAttribute("r", parseInt(newRadius));
+			}
+		}
+	}
+
+	function getTime(){
+		var date = new Date();
+		return date.getTime();
 	}
 
 	var playground = new PlayGround();
@@ -105,6 +122,16 @@
 
 	document.onclick = function(e) {
 		playground.createNewCircle(e.x,e.y);
+	}
+
+	var mousedown_time;
+	document.onmousedown = function() {
+		mousedown_time = getTime();
+	}
+
+	document.onmouseup = function(e){
+		var sizeFactor = (getTime() - mousedown_time)/10000;
+		playground.makeCirclesLarger(parseFloat(sizeFactor));
 	}
 
 	</script>
